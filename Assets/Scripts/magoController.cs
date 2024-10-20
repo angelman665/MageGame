@@ -52,6 +52,7 @@ public class magoController : MonoBehaviour
         {
             if (!isGrounded) doubleJump = false;
             rb.AddForce(new Vector2(0.0f, 500.0f));
+            anim.SetBool("DuploSalto", true);
         }
             
     }
@@ -89,7 +90,7 @@ public class magoController : MonoBehaviour
         }
         if (collision.gameObject.CompareTag("Porta"))
         {
-            if (cena.buildIndex == 1) SceneManager.LoadScene(0);
+            if (cena.buildIndex == 2) SceneManager.LoadScene(0);
             else SceneManager.LoadScene(cena.buildIndex + 1);
         }
     }
