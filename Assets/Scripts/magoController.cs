@@ -3,26 +3,45 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Runtime.CompilerServices;
 using UnityEngine.SceneManagement;
+using TMPro;
+using UnityEngine.UI;
 
 public class magoController : MonoBehaviour
 {
+    private float speed, raio = 0.2f;
+    private bool viradoDireita, isGrounded, doubleJump;
+    private int moeda = 0, totalMoedas;
+
     private Rigidbody2D rb;
-    private float speed;
-    private bool viradoDireita;
     private Animator anim;
-    public bool isGrounded;
     public Transform groundCheck;
-    public float raio = 0.2f;
-    public LayerMask whatIsGround;
     private BoxCollider2D bc;
-    private bool doubleJump;
     public GameObject aberta, fechada;
-    private int moeda = 2;
+
+    public LayerMask whatIsGround;
     private Scene cena;
+
+    // GameObject[] coins = GameObject.FindGameObjectsWithTag("Moeda");
+
+    public Text texto;
+
+    void UpdateCoinText ()
+    {
+        texto.text = "Tens " + moeda + "/" + totalMoedas + " Moedas";
+    }
 
     // Start is called before the first frame update
     void Start()
     {
+        totalMoedas = GameObject.FindGameObjectsWithTag("Moeda").Length;
+        UpdateCoinText();
+
+        /*
+
+        text = FindFirstObjectByType<TextMeshPro>();
+        UpdateText("asfkasjdfksdnfks");
+        */
+        // coinCount = coins.Length;
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         bc = GetComponent<BoxCollider2D>();
@@ -36,6 +55,14 @@ public class magoController : MonoBehaviour
 
     private void Update()
     {
+
+
+        UpdateCoinText();
+
+        anim.SetBool("DuploSalto", false);
+
+        
+
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
             anim.SetBool("Baixar", true);
@@ -50,9 +77,13 @@ public class magoController : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.UpArrow) && (isGrounded || doubleJump))
         {
-            if (!isGrounded) doubleJump = false;
+            if (!isGrounded)
+            {
+               
+                anim.SetBool("DuploSalto", true);
+               // doubleJump = false;
+            } 
             rb.AddForce(new Vector2(0.0f, 500.0f));
-            anim.SetBool("DuploSalto", true);
         }
             
     }
@@ -62,7 +93,13 @@ public class magoController : MonoBehaviour
     {
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, raio,whatIsGround);
         float mov = Input.GetAxis("Horizontal");
-        if (isGrounded) doubleJump = true;
+        if (isGrounded)
+        {
+            doubleJump = true;
+            
+        }
+        
+
         anim.SetFloat("HSpeed", Mathf.Abs(mov));
         rb.velocity = new Vector2(mov * speed, rb.velocity.y);
         if ((viradoDireita && mov < 0) || (!viradoDireita && mov >0)) Flip();
@@ -81,8 +118,8 @@ public class magoController : MonoBehaviour
         if (collision.gameObject.CompareTag("Moeda"))
         {
             Destroy(collision.gameObject);
-            moeda--;
-            if(moeda == 0)
+            moeda++;
+            if(moeda == totalMoedas)
             {
                 fechada.SetActive(false);
                 aberta.SetActive(true);
